@@ -1,25 +1,43 @@
-node('built-in')
+pipeline
 {
-    stage('download') 
+    agent any
+    stages
     {
-       git 'https://github.com/IntelliqDevops/maven.git' 
-    }
-    stage('build')
-    {
-        sh 'mvn package'
-    }
-    stage('deployment') 
-    {
-         sh 'scp /var/lib/jenkins/workspace/scriptedpipeline123/webapp/target/webapp.war ubuntu@172.31.19.220:/var/lib/tomcat10/webapps/testapp.war'
-    }
-    stage('testing')
-    {
-        git 'https://github.com/IntelliqDevops/FunctionalTesting.git'
-        sh 'java -jar /var/lib/jenkins/workspace/scriptedpipeline123/testing.jar'
-    }
-    stage('delivery')
-    {
-         sh 'scp /var/lib/jenkins/workspace/scriptedpipeline123/webapp/target/webapp.war ubuntu@172.31.19.243:/var/lib/tomcat10/webapps/prodapp.war'
+        stage('download')
+        {
+            steps
+            {
+                git 'https://github.com/IntelliqDevops/maven.git'
+            }
+        }
+        stage('build')
+        {
+            steps
+            {
+                 sh 'mvn package'
+            }
+        }
+        stage('deploy')
+        {
+            steps
+            {
+                deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: '70f0605c-67d7-4e10-86d6-3ca27e7d19ae', path: '', url: 'http://172.31.19.220:8080')], contextPath: 'mytest', war: '**/*.war'
+            }
+        }
+        stage('testing')
+        {
+            steps
+            {
+                git 'https://github.com/IntelliqDevops/FunctionalTesting.git'
+                sh 'java -jar /var/lib/jenkins/workspace/declarativepipeline/testing.jar'
+            }
+        }
+        stage('delivery')
+        {
+            steps
+            {
+                deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: '70f0605c-67d7-4e10-86d6-3ca27e7d19ae', path: '', url: 'http://172.31.19.243:8080')], contextPath: 'prodapp', war: '**/*.war'
+            }
+        }
     }
 }
-
