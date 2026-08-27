@@ -1,6 +1,6 @@
-node('built-in') 
+node('myslave')
 {
-    stage('contineousdownload')
+    stage('download')
     {
         git 'https://github.com/IntelliqDevops/maven.git'
     }
@@ -10,16 +10,18 @@ node('built-in')
     }
     stage('deploy')
     {
-       deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: '70f0605c-67d7-4e10-86d6-3ca27e7d19ae', path: '', url: 'http://172.31.19.220:8080')], contextPath: 'testapp', war: '**/*.war' 
+        sh 'scp /home/ubuntu/haritha/workspace/scriptedpipelineonslave/webapp/target/webapp.war ubuntu@172.31.19.220:/var/lib/tomcat10/webapps/testapp.war'
     }
     stage('testing')
     {
-        git 'https://github.com/IntelliqDevops/FunctionalTesting.git'
-        sh 'java -jar /var/lib/jenkins/workspace/scriptedpipeline/testing.jar'
+            git 'https://github.com/IntelliqDevops/FunctionalTesting.git'
+            sh 'java -jar /home/ubuntu/haritha/workspace/scriptedpipelineonslave/testing.jar'
     }
     stage('delivery')
     {
-        deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: '70f0605c-67d7-4e10-86d6-3ca27e7d19ae', path: '', url: 'http://172.31.19.243:8080')], contextPath: 'prodapp', war: '**/*.war'
+        sh 'scp /home/ubuntu/haritha/workspace/scriptedpipelineonslave/webapp/target/webapp.war ubuntu@172.31.19.243:/var/lib/tomcat10/webapps/testapp.war'
     }
-    
 }
+
+
+
