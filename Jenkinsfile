@@ -1,6 +1,6 @@
 node('built-in') 
 {
-    stage('contineousdownload')
+    stage('continuousdownload')
     {
         git 'https://github.com/IntelliqDevops/maven.git'
     }
